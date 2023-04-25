@@ -1,7 +1,7 @@
 package com.example.recommendationservice.service;
 
 import com.example.recommendationservice.domain.CryptocurrencyDataLine;
-import com.example.recommendationservice.domain.CryptocurrencySearchRequest;
+import com.example.recommendationservice.domain.search.CryptocurrencySearchRequest;
 import com.example.recommendationservice.utils.CSVUtils;
 import com.example.recommendationservice.utils.CryptocurrencyDataNotFoundException;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class CryptocurrencySearchService {
     private static final Logger logger = LoggerFactory.getLogger(CryptocurrencySearchService.class);
 
     @Cacheable({"cryptos"})
-    public List<CryptocurrencyDataLine> getCryptocurrenciesData() {
+    public List<CryptocurrencyDataLine> getCryptocurrencyData() {
         final List<CryptocurrencyDataLine> entitiesFromCSV = new ArrayList<>();
 
         try {
@@ -58,8 +58,8 @@ public class CryptocurrencySearchService {
         return entitiesFromCSV;
     }
 
-    public Map<String, List<CryptocurrencyDataLine>> searchCryptocurrencies(CryptocurrencySearchRequest request) {
-        List<CryptocurrencyDataLine> cryptocurrenciesData = getCryptocurrenciesData();
+    public Map<String, List<CryptocurrencyDataLine>> getCryptocurrencyData(CryptocurrencySearchRequest request) {
+        List<CryptocurrencyDataLine> cryptocurrenciesData = getCryptocurrencyData();
 
         cryptocurrenciesData = filterCryptocurrencyData(cryptocurrenciesData, request);
 

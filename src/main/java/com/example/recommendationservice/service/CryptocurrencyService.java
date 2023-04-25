@@ -2,7 +2,7 @@ package com.example.recommendationservice.service;
 
 import com.example.recommendationservice.domain.Cryptocurrency;
 import com.example.recommendationservice.domain.CryptocurrencyDataLine;
-import com.example.recommendationservice.domain.CryptocurrencySearchRequest;
+import com.example.recommendationservice.domain.search.CryptocurrencySearchRequest;
 import com.example.recommendationservice.domain.enums.SortOrder;
 import com.example.recommendationservice.domain.search.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +20,12 @@ public class CryptocurrencyService {
     private CryptocurrencySearchService cryptocurrencySearchService;
 
     public List<Cryptocurrency> getCryptocurrencies(CryptocurrencySearchRequest request) {
-        Map<String, List<CryptocurrencyDataLine>> getCryptocurrencies
-                = cryptocurrencySearchService.searchCryptocurrencies(request);
+        Map<String, List<CryptocurrencyDataLine>> cryptocurrencyDataBySymbol
+                = cryptocurrencySearchService.getCryptocurrencyData(request);
         List<Cryptocurrency> cryptocurrencies = new ArrayList<>();
 
-        Set<String> symbols = getCryptocurrencies.keySet();
-        symbols.forEach(symbol -> calculateCryptocurrencyStatistics(getCryptocurrencies, cryptocurrencies, symbol));
+        Set<String> symbols = cryptocurrencyDataBySymbol.keySet();
+        symbols.forEach(symbol -> calculateCryptocurrencyStatistics(cryptocurrencyDataBySymbol, cryptocurrencies, symbol));
 
         if (Objects.isNull(request.getSorting())) {
             return cryptocurrencies;

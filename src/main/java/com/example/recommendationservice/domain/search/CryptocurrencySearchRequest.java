@@ -1,6 +1,5 @@
-package com.example.recommendationservice.domain;
+package com.example.recommendationservice.domain.search;
 
-import com.example.recommendationservice.domain.search.Sort;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 

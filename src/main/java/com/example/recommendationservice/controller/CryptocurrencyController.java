@@ -2,7 +2,7 @@ package com.example.recommendationservice.controller;
 
 import com.example.recommendationservice.domain.Cryptocurrency;
 import com.example.recommendationservice.domain.CryptocurrencyDataLine;
-import com.example.recommendationservice.domain.CryptocurrencySearchRequest;
+import com.example.recommendationservice.domain.search.CryptocurrencySearchRequest;
 import com.example.recommendationservice.domain.enums.SortOrder;
 import com.example.recommendationservice.domain.enums.SortType;
 import com.example.recommendationservice.domain.search.Sort;
@@ -47,7 +47,7 @@ public class CryptocurrencyController {
             summary = "Gets all cryptocurrencies data from csv files stored in system")
     @GetMapping("/cryptocurrency-data")
     public List<CryptocurrencyDataLine> getCryptocurrenciesData() {
-        return cryptocurrencySearchService.getCryptocurrenciesData();
+        return cryptocurrencySearchService.getCryptocurrencyData();
     }
 
     @Operation(operationId = "getCryptocurrencies",
