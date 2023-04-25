@@ -7,6 +7,7 @@ import com.example.recommendationservice.domain.enums.SortType;
 import com.example.recommendationservice.domain.search.CryptocurrencySearchRequest;
 import com.example.recommendationservice.domain.search.Sort;
 import com.example.recommendationservice.service.ClearCacheTask;
+import com.example.recommendationservice.service.CryptocurrencyDataService;
 import com.example.recommendationservice.service.CryptocurrencySearchService;
 import com.example.recommendationservice.service.CryptocurrencyService;
 import io.github.bucket4j.Bandwidth;
@@ -46,7 +47,8 @@ public class CryptocurrencyController {
         Bandwidth limit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
         this.bucket = Bucket.builder()
                 .addLimit(limit)
-                .build();    }
+                .build();
+    }
 
     @Autowired
     private CryptocurrencyService cryptocurrencyService;
@@ -55,13 +57,16 @@ public class CryptocurrencyController {
     private CryptocurrencySearchService cryptocurrencySearchService;
 
     @Autowired
+    private CryptocurrencyDataService cryptocurrencyDataService;
+
+    @Autowired
     private ClearCacheTask clearCacheTask;
 
     @Operation(operationId = "getCryptocurrenciesData",
             summary = "Gets all cryptocurrencies data from csv files stored in system")
     @GetMapping("/cryptocurrency-data")
     public List<CryptocurrencyDataLine> getCryptocurrenciesData() {
-        return cryptocurrencySearchService.getCryptocurrencyData();
+        return cryptocurrencyDataService.getCryptocurrencyData();
     }
 
     @Operation(operationId = "getCryptocurrencies",
@@ -75,7 +80,8 @@ public class CryptocurrencyController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Cryptocurrency.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid parameters supplied", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found. " +
+                    "For example when incorrect symbol is supplied", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)})
     @GetMapping("/cryptocurrency")
     public ResponseEntity<List<Cryptocurrency>> getCryptocurrencies(
