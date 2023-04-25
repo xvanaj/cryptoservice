@@ -2,13 +2,16 @@ package com.example.recommendationservice.controller;
 
 import com.example.recommendationservice.domain.Cryptocurrency;
 import com.example.recommendationservice.domain.CryptocurrencyDataLine;
-import com.example.recommendationservice.domain.search.CryptocurrencySearchRequest;
 import com.example.recommendationservice.domain.enums.SortOrder;
 import com.example.recommendationservice.domain.enums.SortType;
+import com.example.recommendationservice.domain.search.CryptocurrencySearchRequest;
 import com.example.recommendationservice.domain.search.Sort;
 import com.example.recommendationservice.service.ClearCacheTask;
 import com.example.recommendationservice.service.CryptocurrencySearchService;
 import com.example.recommendationservice.service.CryptocurrencyService;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -21,10 +24,13 @@ import io.swagger.v3.oas.annotations.tags.Tags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,6 +39,14 @@ import java.util.List;
 public class CryptocurrencyController {
 
     private static final Logger logger = LogManager.getLogger(CryptocurrencyController.class);
+
+    private final Bucket bucket;
+
+    public CryptocurrencyController() {
+        Bandwidth limit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
+        this.bucket = Bucket.builder()
+                .addLimit(limit)
+                .build();    }
 
     @Autowired
     private CryptocurrencyService cryptocurrencyService;
@@ -64,20 +78,25 @@ public class CryptocurrencyController {
             @ApiResponse(responseCode = "404", description = "Requested resource not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)})
     @GetMapping("/cryptocurrency")
-    public List<Cryptocurrency> getCryptocurrencies(
+    public ResponseEntity<List<Cryptocurrency>> getCryptocurrencies(
             @RequestParam(value = "symbol", required = false) String symbol,
             @RequestParam(value = "date", required = false) LocalDate date,
             @RequestParam(value = "dateFrom", required = false) LocalDate dateFrom,
             @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
             @RequestParam(value = "sort", defaultValue = "normalizedPrice") SortType sortType,
             @RequestParam(value = "sortOrder", defaultValue = "desc") SortOrder sortOrder) {
-        Sort sorting = new Sort(sortType, sortOrder);
-        CryptocurrencySearchRequest cryptocurrencySearchRequest
-                = new CryptocurrencySearchRequest(symbol, date, dateFrom, dateTo, sorting);
+        if (bucket.tryConsume(1)) {
 
-        logger.info("Received request GET cryptocurrency with parameters {}", cryptocurrencySearchRequest);
+            Sort sorting = new Sort(sortType, sortOrder);
+            CryptocurrencySearchRequest cryptocurrencySearchRequest
+                    = new CryptocurrencySearchRequest(symbol, date, dateFrom, dateTo, sorting);
 
-        return cryptocurrencyService.getCryptocurrencies(cryptocurrencySearchRequest);
+            logger.info("Received request GET cryptocurrency with parameters {}", cryptocurrencySearchRequest);
+
+            return ResponseEntity.ok(cryptocurrencyService.getCryptocurrencies(cryptocurrencySearchRequest));
+        }
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
     @Operation(operationId = "clearCache",

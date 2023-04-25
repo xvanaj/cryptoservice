@@ -45,7 +45,7 @@ class CryptocurrencyControllerTest {
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder);
+                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder).getBody();
 
         //THEN
         assertThat(cryptocurrencies)
@@ -62,12 +62,10 @@ class CryptocurrencyControllerTest {
     @Test
     void getCryptocurrencies_sortByNormalizedPriceAsc() {
         //GIVEN
-        SortType sortType = SortType.NORMALIZED_PRICE;
-        SortOrder desc = SortOrder.ASC;
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, null, null);
+                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, null, null).getBody();
 
         //THEN
         assertThat(cryptocurrencies)
@@ -89,9 +87,10 @@ class CryptocurrencyControllerTest {
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder);
+                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder).getBody();
 
         //THEN
+        assertThat(cryptocurrencies).isNotNull().isNotEmpty();
         assertThat(cryptocurrencies.get(0).getSymbol())
                 .isEqualTo("XRP");
     }
@@ -104,9 +103,10 @@ class CryptocurrencyControllerTest {
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder);
+                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder).getBody();
 
         //THEN
+        assertThat(cryptocurrencies).isNotNull().isNotEmpty();
         assertThat(cryptocurrencies.get(0).getSymbol())
                 .isEqualTo("BTC");
     }
@@ -119,9 +119,10 @@ class CryptocurrencyControllerTest {
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder);
+                = cryptocurrencyController.getCryptocurrencies(null, null, null, null, sortType, sortOrder).getBody();
 
         //THEN
+        assertThat(cryptocurrencies).isNotNull().isNotEmpty();
         Double minPrice = Collections.min(cryptocurrencies.stream().map(Cryptocurrency::getMinPrice).toList());
         assertThat(cryptocurrencies.get(0).getMinPrice())
                 .isEqualTo(minPrice);
@@ -137,7 +138,7 @@ class CryptocurrencyControllerTest {
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(symbol, searchDate, null, null, sortType, sortOrder);
+                = cryptocurrencyController.getCryptocurrencies(symbol, searchDate, null, null, sortType, sortOrder).getBody();
 
         //THEN
         assertThat(cryptocurrencies)
@@ -162,7 +163,7 @@ class CryptocurrencyControllerTest {
 
         //WHEN
         List<Cryptocurrency> cryptocurrencies
-                = cryptocurrencyController.getCryptocurrencies(null, null, dateFrom, dateTo, sortType, sortOrder);
+                = cryptocurrencyController.getCryptocurrencies(null, null, dateFrom, dateTo, sortType, sortOrder).getBody();
 
         //THEN
         assertThat(cryptocurrencies)
@@ -182,12 +183,9 @@ class CryptocurrencyControllerTest {
         SortType sortType = SortType.MIN_PRICE;
         SortOrder sortOrder = SortOrder.ASC;
 
-        //WHEN
-        Assertions.assertThrows(Exception.class, () -> {
-            cryptocurrencyController.getCryptocurrencies(invalidSymbol, null, null, null, sortType, sortOrder);
-        });
-
-        //THEN
+        //WHEN + THEN
+        Assertions.assertThrows(Exception.class,
+                () -> cryptocurrencyController.getCryptocurrencies(invalidSymbol, null, null, null, sortType, sortOrder));
     }
 
 }
