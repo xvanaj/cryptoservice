@@ -35,7 +35,7 @@ public class CryptocurrencyDataService {
 
             if (files == null || files.length == 0) {
                 throw new CryptocurrencyDataNotFoundException(
-                        String.format("Failed to load cryptocurrency data from folder %s. " +
+                        String.format("No files with cryptocurrency data found in %s. " +
                                 "Make sure that files have suffix %s. ", cryptocurrencyFilesFolder, cryptoFilesSuffix));
             }
 

@@ -120,6 +120,22 @@ class CryptocurrencyControllerIntegrationTest {
         ;
     }
 
+    @Test
+    void getCryptocurrencies_rateLimited_returns429() throws Exception {
+        // GIVEN
+        String query = "?dateFrom=2022-01-01&dateTo=2022-01-25" +
+                "&sort=SYMBOL&sortOrder=DESC";
+
+        // WHEN
+        for (int i = 0; i < 10; i++) {
+            callGetCryptocurrenciesEndpoint(query);
+        }
+
+        //THEN
+        callGetCryptocurrenciesEndpoint(query)
+                .andExpect(status().isTooManyRequests());
+    }
+
     private ResultActions callGetCryptocurrenciesEndpoint(String query) throws Exception {
         return mvc.perform(MockMvcRequestBuilders
                         .get("/cryptocurrency" + query)
