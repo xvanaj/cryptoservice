@@ -35,6 +35,7 @@
 - Api is well-described via swagger as mentioned above http://localhost:8080/swagger-ui/index.html
 - Exposed only one endpoint to retrieve cryptocurrencies. This endpoint has optional parameters allowing us to perform all operations from requirements
 - Endpoint operations are covered by integration tests
+- Swagger example:![Swagger example](/src/main/resources/static/swagger-example.png)
 
 ### Possible improvements 
 - Move to cloud - AWS lambda is fast, easily scalable, and you can use rate limiting out of the box. Other option would be to use some api gateway
